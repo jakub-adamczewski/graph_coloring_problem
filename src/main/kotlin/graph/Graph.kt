@@ -1,14 +1,53 @@
 package graph
 
-import java.io.File
+import model.NeighboursColors
 
-open class Graph(val vertexNumber: Int) {
+open class Graph(val vertexNumber: Int, private val debug: Boolean = false) {
+
+    var edgesNumber: Int = 0
+        protected set
 
     protected val matrix = Array(vertexNumber) { BooleanArray(vertexNumber) { false } }
+
+    // 0 is no color
+    private val colors = Array(vertexNumber) { 0 }
+
+    val chromaticNumber
+        get() = colors.maxOf { it }
 
     fun areConnected(connection: Pair<Int, Int>): Boolean = connection.run {
         throwIfIsZero(first, second)
         return matrix[first - 1][second - 1] && matrix[second - 1][first - 1]
+    }
+
+    fun areNotConnected(connection: Pair<Int, Int>): Boolean = !areConnected(connection)
+
+    fun color(vertex: Int, color: Int) {
+        throwIfIsZero(vertex)
+        colors[vertex - 1] = color
+    }
+
+    fun getNeighboursColors(vertex: Int): NeighboursColors {
+        throwIfIsZero(vertex)
+        return NeighboursColors(getNeighbours(vertex).map { getColor(it) })
+    }
+
+    fun getNeighbours(vertex: Int): List<Int> {
+        throwIfIsZero(vertex)
+        return matrix[vertex - 1].mapIndexed { index, isConnected ->
+            if (isConnected) index + 1 else 0
+        }.filter {
+            it > 0
+        }
+    }
+
+    fun getColor(vertex: Int): Int {
+        throwIfIsZero(vertex)
+        return colors[vertex - 1]
+    }
+
+    fun isColored(vertex: Int): Boolean {
+        return getColor(vertex) > 0
     }
 
     protected fun throwIfIsZero(vararg args: Int) {
@@ -28,25 +67,4 @@ open class Graph(val vertexNumber: Int) {
             .replace("", " ")
     }
 
-    companion object {
-        fun fromTxtFile(filePath: String): Graph {
-            val inputStream = File(filePath).inputStream()
-            val lines = mutableListOf<String>()
-            inputStream.bufferedReader().forEachLine { lines.add(it) }
-
-            val vertexNumber = lines.first().toInt()
-            val connections = lines.apply { removeFirst() }.map { it.twoStringNumbersToIntPair() }
-
-            return MutableGraph(vertexNumber).apply {
-                connections.forEach {
-                    addConnection(it)
-                }
-            }
-        }
-
-        private fun String.twoStringNumbersToIntPair(): Pair<Int, Int> {
-            val stringNumbers = split(" ")
-            return stringNumbers.first().toInt() to stringNumbers.last().toInt()
-        }
-    }
 }

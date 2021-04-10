@@ -1,3 +1,3 @@
 package model
 
-data class Vertex(val id: Int, val adjacentVertices:  MutableList<Vertex>)
+data class Vertex(val id: Int)
