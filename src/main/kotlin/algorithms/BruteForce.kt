@@ -1,10 +1,10 @@
 package algorithms
 
-import graph.Graph
+import graph.UndirectedGraph
 
 object BruteForce {
 
-    fun Graph.getBruteForceChromaticNumber(): Int {
+    fun UndirectedGraph.getBruteForceChromaticNumber(): Int {
         color(1,1)
         for (vertex in 2 .. vertexNumber){
             color(vertex, getNeighboursColors(vertex).firstAvailableColor)

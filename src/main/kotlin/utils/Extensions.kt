@@ -1,12 +1,12 @@
 package utils
 
-import graph.Graph
-import graph.MutableGraph
+import graph.UndirectedGraph
+import graph.MutableUndirectedGraph
 import java.io.File
 
 object Extensions {
 
-    fun graphFromTxtFile(filePath: String): Graph {
+    fun graphFromTxtFile(filePath: String): UndirectedGraph {
         val inputStream = File(filePath).inputStream()
         val lines = mutableListOf<String>()
         inputStream.bufferedReader().forEachLine { lines.add(it) }
@@ -14,7 +14,7 @@ object Extensions {
         val vertexNumber = lines.first().toInt()
         val connections = lines.apply { removeFirst() }.map { it.twoStringNumbersToIntPair() }
 
-        return MutableGraph(vertexNumber).apply {
+        return MutableUndirectedGraph(vertexNumber).apply {
             connections.forEach {
                 addConnection(it)
             }

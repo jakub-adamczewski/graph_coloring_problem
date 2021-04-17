@@ -1,8 +1,9 @@
 package graph
 
 import model.NeighboursColors
+import java.lang.RuntimeException
 
-open class Graph(val vertexNumber: Int, private val debug: Boolean = false) {
+open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = false) {
 
     var edgesNumber: Int = 0
         protected set
@@ -17,6 +18,8 @@ open class Graph(val vertexNumber: Int, private val debug: Boolean = false) {
 
     fun areConnected(connection: Pair<Int, Int>): Boolean = connection.run {
         throwIfIsZero(first, second)
+        throwIfIsArgsEqual(connection)
+
         return matrix[first - 1][second - 1] && matrix[second - 1][first - 1]
     }
 
@@ -52,6 +55,10 @@ open class Graph(val vertexNumber: Int, private val debug: Boolean = false) {
 
     protected fun throwIfIsZero(vararg args: Int) {
         if (args.any { it <= 0 }) throw IndexOutOfBoundsException("Matrix is indexed starting with 1")
+    }
+
+    protected fun throwIfIsArgsEqual( args: Pair<Int,Int>) {
+        if (args.first == args.second) throw RuntimeException("Args can not be equal")
     }
 
     override fun toString(): String {
