@@ -1,5 +1,8 @@
 package graph
 
+import utils.Util.throwIfIsArgsEqual
+import utils.Util.throwIfIsZero
+
 class MutableUndirectedGraph(vertexNumber: Int) : UndirectedGraph(vertexNumber) {
 
     fun addConnection(connection: Pair<Int, Int>) = connection.run {

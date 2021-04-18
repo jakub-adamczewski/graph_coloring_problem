@@ -1,24 +1,23 @@
 package graph
 
-import model.NeighboursColors
+import graph.coloring.ColorsManager
+import utils.Util.sorted
+import utils.Util.throwIfIsArgsEqual
+import utils.Util.throwIfIsZero
 
 open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = false) {
+
+    val coloring = ColorsManager(vertexNumber)
 
     protected val matrix = Array(vertexNumber) { BooleanArray(vertexNumber) { false } }
 
     val edgesNumber: Int
         get() = matrix.flatMap { row -> row.filter { it } }.size / 2
 
-            // 0 is no color
-    private val colors = Array(vertexNumber) { 0 }
-
-    val currentColorsNumber
-        get() = colors.maxOf { it }
-
     val allConnections: List<Pair<Int, Int>>
         get() = (1..vertexNumber).flatMap { vertex ->
             getNeighbours(vertex).map { neighbour ->
-                listOf(vertex, neighbour).sorted().toPair()
+                (vertex to neighbour).sorted()
             }
         }.distinct()
 
@@ -31,15 +30,6 @@ open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = f
 
     fun areNotConnected(connection: Pair<Int, Int>): Boolean = !areConnected(connection)
 
-    fun color(vertex: Int, color: Int) {
-        throwIfIsZero(vertex)
-        colors[vertex - 1] = color
-    }
-
-    fun getNeighboursColors(vertex: Int): NeighboursColors {
-        throwIfIsZero(vertex)
-        return NeighboursColors(getNeighbours(vertex).map { getColor(it) })
-    }
 
     fun getNeighbours(vertex: Int): List<Int> {
         throwIfIsZero(vertex)
@@ -48,28 +38,6 @@ open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = f
         }.filter {
             it > 0
         }
-    }
-
-    fun getColor(vertex: Int): Int {
-        throwIfIsZero(vertex)
-        return colors[vertex - 1]
-    }
-
-    fun isColored(vertex: Int): Boolean {
-        return getColor(vertex) > 0
-    }
-
-    fun <T> List<T>.toPair(): Pair<T, T> {
-        if (this.size != 2) throw RuntimeException("List converted to pair should have size of 2")
-        return this[0] to this[1]
-    }
-
-    protected fun throwIfIsZero(vararg args: Int) {
-        if (args.any { it <= 0 }) throw IndexOutOfBoundsException("Matrix is indexed starting with 1")
-    }
-
-    protected fun throwIfIsArgsEqual(args: Pair<Int, Int>) {
-        if (args.first == args.second) throw RuntimeException("Args can not be equal")
     }
 
     override fun toString(): String {

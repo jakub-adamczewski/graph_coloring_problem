@@ -1,5 +1,6 @@
 package model
 
+import graph.coloring.NeighboursColors
 import org.junit.Test
 
 class NeighboursColorsTest {

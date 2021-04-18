@@ -41,4 +41,12 @@ object Util {
         if (this.size != 2) throw RuntimeException("List converted to pair should have size of 2")
         return this[0] to this[1]
     }
+
+    fun throwIfIsZero(vararg args: Int) {
+        if (args.any { it <= 0 }) throw IndexOutOfBoundsException("Matrix is indexed starting with 1")
+    }
+
+    fun throwIfIsArgsEqual(args: Pair<Int, Int>) {
+        if (args.first == args.second) throw RuntimeException("Args can not be equal")
+    }
 }
