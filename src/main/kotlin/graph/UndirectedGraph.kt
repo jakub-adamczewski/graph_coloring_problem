@@ -1,7 +1,6 @@
 package graph
 
 import model.NeighboursColors
-import java.io.File
 
 open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = false) {
 
@@ -16,11 +15,12 @@ open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = f
     val currentColorsNumber
         get() = colors.maxOf { it }
 
-    val allConnections: List<Pair<Int, Int>> = (1..vertexNumber).flatMap { vertex ->
-        getNeighbours(vertex).map { neighbour ->
-            listOf(vertex, neighbour).sorted().toPair()
-        }
-    }.distinct()
+    val allConnections: List<Pair<Int, Int>>
+        get() = (1..vertexNumber).flatMap { vertex ->
+            getNeighbours(vertex).map { neighbour ->
+                listOf(vertex, neighbour).sorted().toPair()
+            }
+        }.distinct()
 
     fun areConnected(connection: Pair<Int, Int>): Boolean = connection.run {
         throwIfIsZero(first, second)
@@ -59,8 +59,8 @@ open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = f
         return getColor(vertex) > 0
     }
 
-    fun <T> List<T>.toPair(): Pair<T,T> {
-        if(this.size != 2) throw RuntimeException("List converted to pair should have size of 2")
+    fun <T> List<T>.toPair(): Pair<T, T> {
+        if (this.size != 2) throw RuntimeException("List converted to pair should have size of 2")
         return this[0] to this[1]
     }
 
@@ -84,14 +84,4 @@ open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = f
             .replace(" ", "")
             .replace("", " ")
     }
-
-    fun toTxtGCPInstance(fileName: String): Boolean =
-        File(fileName).apply {
-            printWriter().use { writer ->
-                writer.println("$vertexNumber")
-                allConnections.forEach { connection ->
-                    writer.println("${connection.first} ${connection.second}")
-                }
-            }
-        }.createNewFile()
 }
