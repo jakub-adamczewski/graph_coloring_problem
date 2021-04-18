@@ -2,13 +2,13 @@ package algorithms
 
 import graph.UndirectedGraph
 
-object BruteForce {
+object GreedyAlgorithm {
 
-    fun UndirectedGraph.getBruteForceChromaticNumber(): Int {
+    fun UndirectedGraph.getGreedyChromaticNumber(): Int {
         color(1,1)
         for (vertex in 2 .. vertexNumber){
             color(vertex, getNeighboursColors(vertex).firstAvailableColor)
         }
-        return  chromaticNumber
+        return  currentColorsNumber
     }
 }

@@ -1,18 +1,25 @@
 package utils
 
-import graph.UndirectedGraph
 import graph.MutableUndirectedGraph
+import graph.UndirectedGraph
+import utils.Files.RES_LOCALIZATION
 import java.io.File
+import java.io.InputStream
 
-object Extensions {
+object Util {
+
+    fun graphFromResource(fileName: String): UndirectedGraph {
+        return Util::class.java.getResourceAsStream(RES_LOCALIZATION + fileName).toGraph()
+    }
 
     fun graphFromTxtFile(filePath: String): UndirectedGraph {
-        val inputStream = File(filePath).inputStream()
-        val lines = mutableListOf<String>()
-        inputStream.bufferedReader().forEachLine { lines.add(it) }
+        return File(filePath).inputStream().toGraph()
+    }
 
+    private fun InputStream.toGraph(): UndirectedGraph {
+        val lines = bufferedReader().lineSequence().toList()
         val vertexNumber = lines.first().toInt()
-        val connections = lines.apply { removeFirst() }.map { it.twoStringNumbersToIntPair() }
+        val connections = lines.filterIndexed { index, _ -> index > 0 }.map { it.twoStringNumbersToIntPair() }
 
         return MutableUndirectedGraph(vertexNumber).apply {
             connections.forEach {
