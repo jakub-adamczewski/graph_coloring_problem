@@ -9,7 +9,6 @@ class MutableUndirectedGraph(vertexNumber: Int) : UndirectedGraph(vertexNumber) 
         if (areNotConnected(connection)) {
             matrix[first - 1][second - 1] = true
             matrix[second - 1][first - 1] = true
-            edgesNumber++
         }
     }
 

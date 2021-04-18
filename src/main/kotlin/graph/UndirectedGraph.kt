@@ -4,12 +4,12 @@ import model.NeighboursColors
 
 open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = false) {
 
-    var edgesNumber: Int = 0
-        protected set
-
     protected val matrix = Array(vertexNumber) { BooleanArray(vertexNumber) { false } }
 
-    // 0 is no color
+    val edgesNumber: Int
+        get() = matrix.flatMap { row -> row.filter { it } }.size / 2
+
+            // 0 is no color
     private val colors = Array(vertexNumber) { 0 }
 
     val currentColorsNumber
