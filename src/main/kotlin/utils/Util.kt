@@ -33,18 +33,12 @@ object Util {
         return stringNumbers.first().toInt() to stringNumbers.last().toInt()
     }
 
-    fun <T> Array<T>.printIfDebug(debug: Boolean) {
-        if (debug) {
-            forEach { print(it) }
-            println()
-        }
-    }
+    fun Pair<Int, Int>.sorted(): Pair<Int,Int> = listOf(first, second).sorted().toPair()
 
-    fun <T> Iterable<T>.printIfDebug(debug: Boolean) {
-        if (debug) {
-            forEach { print(it) }
-            println()
-        }
-    }
+    fun Pair<Int, Int>.sortedDesc(): Pair<Int,Int> = listOf(first, second).sortedDescending().toPair()
 
+    private fun <T> List<T>.toPair(): Pair<T, T> {
+        if (this.size != 2) throw RuntimeException("List converted to pair should have size of 2")
+        return this[0] to this[1]
+    }
 }
