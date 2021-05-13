@@ -2,30 +2,50 @@ package utils
 
 import graph.MutableUndirectedGraph
 import graph.UndirectedGraph
-import utils.Files.RES_LOCALIZATION
-import java.io.File
 import java.io.InputStream
 
 object Util {
 
-    fun graphFromResource(fileName: String): UndirectedGraph {
-        return Util::class.java.getResourceAsStream(RES_LOCALIZATION + fileName).toGraph()
-    }
-
-    fun graphFromTxtFile(filePath: String): UndirectedGraph {
-        return File(filePath).inputStream().toGraph()
-    }
-
-    private fun InputStream.toGraph(): UndirectedGraph {
-        val lines = bufferedReader().lineSequence().toList()
-        val vertexNumber = lines.first().toInt()
-        val connections = lines.filterIndexed { index, _ -> index > 0 }.map { it.twoStringNumbersToIntPair() }
-
-        return MutableUndirectedGraph(vertexNumber).apply {
-            connections.forEach {
-                addConnection(it)
-            }
+    fun graphFromResource(resource: String, fileName: String): UndirectedGraph {
+        val fileExtension = when (resource) {
+            Files.TXT_RES_LOCALIZATION -> Files.TXT
+            Files.COL_RES_LOCALIZATION -> Files.COL
+            else -> throw RuntimeException("unsupported file type")
         }
+        return Util::class.java.getResourceAsStream(resource + fileName + fileExtension).toGraph(fileExtension)
+    }
+
+    private fun InputStream.toGraph(fileExtension: String): UndirectedGraph {
+        val lines = bufferedReader().lineSequence().toList()
+        return when (fileExtension) {
+            Files.TXT -> {
+                val vertexNumber = lines.first().toInt()
+                val connections = lines.filterIndexed { index, _ -> index > 0 }.map { it.twoStringNumbersToIntPair() }
+                MutableUndirectedGraph(vertexNumber).apply {
+                    addConnections(*connections.toTypedArray())
+                }
+            }
+            Files.COL -> {
+                val vertexNumber = lines
+                    .first { it.contains("p edge ") }
+                    .replace("p edge ", "")
+                    .twoStringNumbersToIntPair()
+                    .first
+                val connections = lines
+                    .filter {
+                        !it.contains("c ") &&
+                                !it.contains("p edge ") &&
+                                it.contains("e ")
+                    }
+                    .map { it.replace("e ", "") }
+                    .map { it.twoStringNumbersToIntPair() }
+                MutableUndirectedGraph(vertexNumber).apply {
+                    addConnections(*connections.toTypedArray())
+                }
+            }
+            else -> throw RuntimeException("unsupported file type")
+        }
+
     }
 
     private fun String.twoStringNumbersToIntPair(): Pair<Int, Int> {
@@ -33,9 +53,9 @@ object Util {
         return stringNumbers.first().toInt() to stringNumbers.last().toInt()
     }
 
-    fun Pair<Int, Int>.sorted(): Pair<Int,Int> = listOf(first, second).sorted().toPair()
+    fun Pair<Int, Int>.sorted(): Pair<Int, Int> = listOf(first, second).sorted().toPair()
 
-    fun Pair<Int, Int>.sortedDesc(): Pair<Int,Int> = listOf(first, second).sortedDescending().toPair()
+    fun Pair<Int, Int>.sortedDesc(): Pair<Int, Int> = listOf(first, second).sortedDescending().toPair()
 
     private fun <T> List<T>.toPair(): Pair<T, T> {
         if (this.size != 2) throw RuntimeException("List converted to pair should have size of 2")
