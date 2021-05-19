@@ -1,6 +1,5 @@
 package utils
 
-import graph.MutableUndirectedGraph
 import graph.UndirectedGraph
 
 object UndirectedGraphGenerator {
@@ -8,7 +7,7 @@ object UndirectedGraphGenerator {
     fun generateCoherentGraphWithDensity(size: Int, graphDensity: Float): UndirectedGraph {
         throwIfBadRange(graphDensity)
 
-        val graph = MutableUndirectedGraph(size).apply { addObligatoryEdges() }
+        val graph = UndirectedGraph(size).apply { addObligatoryEdges() }
         var edgesNumberToAdd = (maximumEdgesNumberForGraphSize(size) * graphDensity).toInt() - graph.edgesNumber
         while (edgesNumberToAdd > 0) {
             graph.apply {
@@ -20,7 +19,7 @@ object UndirectedGraphGenerator {
         return graph
     }
 
-    private fun MutableUndirectedGraph.addObligatoryEdges() {
+    private fun UndirectedGraph.addObligatoryEdges() {
         for (vertex in 1 until vertexNumber) {
             addConnection(vertex to vertex + 1)
         }

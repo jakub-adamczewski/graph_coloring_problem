@@ -5,7 +5,7 @@ import utils.Util.sorted
 import utils.Util.throwIfIsArgsEqual
 import utils.Util.throwIfIsZero
 
-open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = false) {
+class UndirectedGraph(val vertexNumber: Int, val name: String = "no name", private val debug: Boolean = false) {
 
     val coloring = ColorsManager(vertexNumber)
 
@@ -21,6 +21,13 @@ open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = f
             }
         }.distinct()
 
+    val wrongConnections: List<Pair<Int, Int>>
+        get() = allConnections.filter { (vertex1, vertex2) ->
+            val color1 = coloring.getColor(vertex1)
+            val color2 = coloring.getColor(vertex2)
+            color1 == color2 && color1 != 0 && color2 != 0
+        }
+
     fun areConnected(connection: Pair<Int, Int>): Boolean = connection.run {
         throwIfIsZero(first, second)
         throwIfIsArgsEqual(connection)
@@ -30,6 +37,19 @@ open class UndirectedGraph(val vertexNumber: Int, private val debug: Boolean = f
 
     fun areNotConnected(connection: Pair<Int, Int>): Boolean = !areConnected(connection)
 
+    fun addConnection(connection: Pair<Int, Int>) = connection.run {
+        throwIfIsZero(first, second)
+        throwIfIsArgsEqual(connection)
+
+        if (areNotConnected(connection)) {
+            matrix[first - 1][second - 1] = true
+            matrix[second - 1][first - 1] = true
+        }
+    }
+
+    fun addConnections(vararg connections: Pair<Int, Int>) = connections.forEach { connection ->
+        addConnection(connection)
+    }
 
     fun getNeighbours(vertex: Int): List<Int> {
         throwIfIsZero(vertex)

@@ -4,13 +4,13 @@ import graph.UndirectedGraph
 
 object GreedyAlgorithm {
 
-    fun UndirectedGraph.getGreedyChromaticNumber(): Int {
+    fun UndirectedGraph.colorWithGreedyAlgorithm(): UndirectedGraph {
         coloring.run {
-            color(1,1)
-            for (vertex in 2 .. vertexNumber){
+            color(1, 1)
+            for (vertex in 2..vertexNumber) {
                 color(vertex, getNeighboursColors(getNeighbours(vertex)).firstAvailableColor)
             }
-            return  currentColorsNumber
+            return this@colorWithGreedyAlgorithm
         }
     }
 }

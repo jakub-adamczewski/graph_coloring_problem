@@ -1,10 +1,11 @@
 package utils
 
-import graph.MutableUndirectedGraph
 import graph.UndirectedGraph
 import java.io.InputStream
 
 object Util {
+
+    fun Array<Int>.solutionToChromaticNumber(): Int = this.maxOf { it }
 
     fun graphFromResource(resource: String, fileName: String): UndirectedGraph {
         val fileExtension = when (resource) {
@@ -12,16 +13,16 @@ object Util {
             Files.COL_RES_LOCALIZATION -> Files.COL
             else -> throw RuntimeException("unsupported file type")
         }
-        return Util::class.java.getResourceAsStream(resource + fileName + fileExtension).toGraph(fileExtension)
+        return Util::class.java.getResourceAsStream(resource + fileName + fileExtension).toGraph(fileName, fileExtension)
     }
 
-    private fun InputStream.toGraph(fileExtension: String): UndirectedGraph {
+    private fun InputStream.toGraph(fileName: String, fileExtension: String): UndirectedGraph {
         val lines = bufferedReader().lineSequence().toList()
         return when (fileExtension) {
             Files.TXT -> {
                 val vertexNumber = lines.first().toInt()
                 val connections = lines.filterIndexed { index, _ -> index > 0 }.map { it.twoStringNumbersToIntPair() }
-                MutableUndirectedGraph(vertexNumber).apply {
+                UndirectedGraph(vertexNumber, fileName).apply {
                     addConnections(*connections.toTypedArray())
                 }
             }
@@ -39,7 +40,7 @@ object Util {
                     }
                     .map { it.replace("e ", "") }
                     .map { it.twoStringNumbersToIntPair() }
-                MutableUndirectedGraph(vertexNumber).apply {
+                UndirectedGraph(vertexNumber, fileName).apply {
                     addConnections(*connections.toTypedArray())
                 }
             }

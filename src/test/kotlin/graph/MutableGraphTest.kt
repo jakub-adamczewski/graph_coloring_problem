@@ -6,7 +6,7 @@ class MutableGraphTest {
 
     @Test
     fun `connections checks are correct`() {
-        val graph: UndirectedGraph = MutableUndirectedGraph(4).apply {
+        val graph: UndirectedGraph = UndirectedGraph(4).apply {
             addConnections(
                 1 to 2,
                 2 to 3,
@@ -25,7 +25,7 @@ class MutableGraphTest {
 
     @Test
     fun `edges count`() {
-        val graph: UndirectedGraph = MutableUndirectedGraph(4).apply {
+        val graph: UndirectedGraph = UndirectedGraph(4).apply {
             addConnections(
                 1 to 2, 2 to 1,
                 2 to 3, 3 to 2,
