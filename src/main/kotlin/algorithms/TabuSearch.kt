@@ -34,7 +34,7 @@ object TabuSearch {
             for (r in 0 until reps) {
                 vertexToMove = moveCandidates.random()
 
-                val newColor = randomColor(colorsNumber, solution.coloring.getColor(vertexToMove))
+                val newColor = randomColor(colorsNumber)
 
                 newSolution = copy(solution)
                 newSolution.coloring.color(vertexToMove, newColor)
@@ -58,13 +58,13 @@ object TabuSearch {
 
             tabu.add(vertexToMove!! to solution.coloring.getColor(vertexToMove))
             if (tabu.size > tabuSize) {
-                tabu.pollLast()
+                tabu.removeLast()
             }
 
             solution = newSolution!!
 
             if (conflictCount < minimumConflictCount) minimumConflictCount = conflictCount
-            if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
+            if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount, aspiration size: ${aspirationLevel.size}, tabu size: ${tabu.size}")
             print(",$conflictCount")
         }
 
@@ -94,12 +94,7 @@ object TabuSearch {
         }
     }
 
-    private fun randomColor(to: Int, without: Int = -1): Int {
-        val randomInt = Random.nextInt(1, to + 1)
-        return if (randomInt != without) {
-            randomInt
-        } else {
-            to
-        }
+    private fun randomColor(to: Int): Int {
+        return Random.nextInt(1, to + 1)
     }
 }

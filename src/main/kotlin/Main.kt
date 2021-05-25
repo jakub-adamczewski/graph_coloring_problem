@@ -8,18 +8,18 @@ import kotlin.math.ceil
 import kotlin.system.measureTimeMillis
 
 fun main() {
-    basicTabuSearchTest(graphFromResource(Files.COL_RES_LOCALIZATION, "le450_25a" ))
+    basicTabuSearchTest(graphFromResource(Files.COL_RES_LOCALIZATION, "miles250"), 8)
 //        greedyTests()
 }
 
-fun basicTabuSearchTest(graph: UndirectedGraph) {
+fun basicTabuSearchTest(graph: UndirectedGraph, optimalColorsNumber: Int) {
     println("Tabu Search test for ${graph.name}")
     val greedyChromaticNumber = graph.colorWithGreedyAlgorithm().coloring.chromaticNumber
     println("Greedy coloring chromatic number: $greedyChromaticNumber")
     graph.coloring.clear()
 
     val computationsDurationMillis = measureTimeMillis {
-        TabuSearch.getTabuSearchSolution(graph, 25)
+        TabuSearch.getTabuSearchSolution(graph, optimalColorsNumber)
     }
     val seconds = TimeUnit.MILLISECONDS.toSeconds(computationsDurationMillis)
     println("Execution duration seconds: $seconds")
