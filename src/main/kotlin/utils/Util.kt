@@ -5,8 +5,6 @@ import java.io.InputStream
 
 object Util {
 
-    fun Array<Int>.solutionToChromaticNumber(): Int = this.maxOf { it }
-
     fun graphFromResource(resource: String, fileName: String): UndirectedGraph {
         val fileExtension = when (resource) {
             Files.TXT_RES_LOCALIZATION -> Files.TXT

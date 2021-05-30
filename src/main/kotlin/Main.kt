@@ -4,12 +4,48 @@ import graph.UndirectedGraph
 import utils.Files
 import utils.Util.graphFromResource
 import java.util.concurrent.TimeUnit
-import kotlin.math.ceil
 import kotlin.system.measureTimeMillis
 
 fun main() {
-    basicTabuSearchTest(graphFromResource(Files.COL_RES_LOCALIZATION, "miles250"), 8)
-//        greedyTests()
+    // quick graphs - queen6, miles250,
+    advancedTabuSearchTest(graphFromResource(Files.TXT_RES_LOCALIZATION, "queen6"))
+//    pythonTest()
+}
+
+//private fun IntArray.toBoolean(): BooleanArray = this.map { it != 0 }.toBooleanArray()
+
+//fun pythonTest(){
+//    val graph = UndirectedGraph(12, "python").apply {
+//        matrix = arrayOf(
+//            intArrayOf(0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0).toBoolean(),
+//            intArrayOf(1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0).toBoolean(),
+//            intArrayOf(0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0).toBoolean(),
+//            intArrayOf(0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0).toBoolean(),
+//            intArrayOf(1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0).toBoolean(),
+//            intArrayOf(0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1).toBoolean(),
+//            intArrayOf(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1).toBoolean(),
+//            intArrayOf(0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1).toBoolean(),
+//            intArrayOf(0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0).toBoolean(),
+//            intArrayOf(1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1).toBoolean(),
+//            intArrayOf(0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0).toBoolean(),
+//            intArrayOf(0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0).toBoolean()
+//        )
+//    }
+//    val solution = TabuSearch.getTabuSearchSolution(graph, 10, 7, 100, 10_000)
+//    println("Test solution python: ${solution?.coloring?.chromaticNumber ?: -1}")
+//}
+
+fun advancedTabuSearchTest(graph: UndirectedGraph) {
+    println("Tabu Search optimization test for ${graph.name}")
+    val greedyChromaticNumber = graph.colorWithGreedyAlgorithm().coloring.chromaticNumber
+    println("Greedy coloring chromatic number: $greedyChromaticNumber")
+    graph.coloring.clear()
+
+    val computationsDurationMillis = measureTimeMillis {
+        TabuSearch.optimizationProblem(graph, 20, greedyChromaticNumber, 7, 100, 3_000)
+    }
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(computationsDurationMillis)
+    println("Execution duration seconds: $seconds")
 }
 
 fun basicTabuSearchTest(graph: UndirectedGraph, optimalColorsNumber: Int) {
@@ -19,51 +55,8 @@ fun basicTabuSearchTest(graph: UndirectedGraph, optimalColorsNumber: Int) {
     graph.coloring.clear()
 
     val computationsDurationMillis = measureTimeMillis {
-        TabuSearch.getTabuSearchSolution(graph, optimalColorsNumber)
+        TabuSearch.getTabuSearchSolution(graph, optimalColorsNumber, 7, 100, 1000)
     }
     val seconds = TimeUnit.MILLISECONDS.toSeconds(computationsDurationMillis)
     println("Execution duration seconds: $seconds")
-}
-
-fun testGraphWithTabuSearch(graph: UndirectedGraph) {
-    val greedyChromaticNumber = graph.colorWithGreedyAlgorithm().coloring.chromaticNumber
-    println("Greedy coloring chromatic number: $greedyChromaticNumber")
-    var jumpValue = ceil(greedyChromaticNumber.toFloat() / 2).toInt()
-    var subtract = true
-
-    var colorsNumberToTest: Int = greedyChromaticNumber - jumpValue
-    var previouslyTestedColorsNumber: Int = -1
-
-    while (colorsNumberToTest != previouslyTestedColorsNumber) {
-        graph.coloring.clear()
-
-        val tabuResult = TabuSearch.getTabuSearchSolution(graph, colorsNumberToTest)
-        subtract = tabuResult != null
-
-        previouslyTestedColorsNumber = colorsNumberToTest
-        jumpValue = ceil(jumpValue.toFloat() / 2).toInt()
-        colorsNumberToTest = if(subtract){
-            colorsNumberToTest - jumpValue
-        }else {
-            colorsNumberToTest + jumpValue
-        }
-    }
-}
-
-fun greedyTests() {
-//    Files.allTxtFiles.forEach { fileName ->
-//        println("$fileName chromaticNumber: " +
-//                "${graphFromResource(Files.TXT_RES_LOCALIZATION, fileName).getGreedyChromaticNumber()}")
-//    }
-    Files.allColFiles.forEach { fileName ->
-        println(
-            "$fileName greedyChromaticNumber: " +
-                    "${
-                        graphFromResource(
-                            Files.COL_RES_LOCALIZATION,
-                            fileName
-                        ).colorWithGreedyAlgorithm().coloring.chromaticNumber
-                    }"
-        )
-    }
 }

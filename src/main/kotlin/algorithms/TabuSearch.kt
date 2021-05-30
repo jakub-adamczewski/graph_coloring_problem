@@ -2,13 +2,41 @@ package algorithms
 
 import graph.UndirectedGraph
 import java.util.*
+import kotlin.math.ceil
 import kotlin.random.Random
 
 object TabuSearch {
 
+    fun optimizationProblem(
+        graph: UndirectedGraph, nTry: Int, startingColorsNumber: Int, tabuSize: Int, reps: Int, maxIterations: Int
+    ) {
+        val checkedChromaticNumbers = mutableListOf<Int>()
+        var currentColorsNumber = ceil(startingColorsNumber / 2f).toInt()
+        var jumpValue = ceil(startingColorsNumber / 2f).toInt()
+        var chromaticNumber = startingColorsNumber
+
+        for (i in 0 until nTry) {
+            val newGraph = copy(graph)
+            val newSolution = getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations)
+            checkedChromaticNumbers.add(currentColorsNumber)
+            jumpValue = if (ceil(jumpValue / 2f).toInt() == 0) 1 else ceil(jumpValue / 2f).toInt()
+
+            if (newSolution != null) {
+                chromaticNumber = currentColorsNumber
+                currentColorsNumber -= jumpValue
+            } else {
+                currentColorsNumber += jumpValue
+            }
+            if (checkedChromaticNumbers.contains(currentColorsNumber)) {
+                break
+            }
+        }
+        println("Tabu Search optimum chromatic number is: $chromaticNumber")
+
+    }
+
     fun getTabuSearchSolution(
-        graph: UndirectedGraph, colorsNumber: Int, tabuSize: Int = 20, reps: Int = 100,
-        maxIterations: Int = 100_000
+        graph: UndirectedGraph, colorsNumber: Int, tabuSize: Int, reps: Int, maxIterations: Int
     ): UndirectedGraph? {
         var minimumConflictCount = 10_000
         println()
@@ -64,7 +92,7 @@ object TabuSearch {
             solution = newSolution!!
 
             if (conflictCount < minimumConflictCount) minimumConflictCount = conflictCount
-            if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount, aspiration size: ${aspirationLevel.size}, tabu size: ${tabu.size}")
+            if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
             print(",$conflictCount")
         }
 
@@ -73,6 +101,7 @@ object TabuSearch {
             println()
             solution
         } else {
+            println()
             println("No coloring for $colorsNumber")
             println()
             null
