@@ -21,6 +21,11 @@ class UndirectedGraph(val vertexNumber: Int, val name: String = "no name", priva
             }
         }.distinct()
 
+    val density: Float
+        get() = allConnections.size / maxConnectionsNumber.toFloat()
+
+    val maxConnectionsNumber: Int = (vertexNumber * (vertexNumber - 1) / 2)
+
     val wrongConnections: List<Pair<Int, Int>>
         get() = allConnections.filter { (vertex1, vertex2) ->
             val color1 = coloring.getColor(vertex1)

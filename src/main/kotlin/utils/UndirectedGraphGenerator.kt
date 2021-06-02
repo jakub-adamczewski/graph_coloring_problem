@@ -4,7 +4,7 @@ import graph.UndirectedGraph
 
 object UndirectedGraphGenerator {
 
-    fun generateCoherentGraphWithDensity(size: Int, graphDensity: Float): UndirectedGraph {
+    fun generateCoherentGraph(size: Int, graphDensity: Float): UndirectedGraph {
         throwIfBadRange(graphDensity)
 
         val graph = UndirectedGraph(size).apply { addObligatoryEdges() }

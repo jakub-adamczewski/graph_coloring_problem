@@ -15,9 +15,10 @@ object TabuSearch {
         var jumpValue = ceil(startingColorsNumber / 2f).toInt()
         var chromaticNumber = startingColorsNumber
 
+        var newSolution: UndirectedGraph? = null
         for (i in 0 until nTry) {
             val newGraph = copy(graph)
-            val newSolution = getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations)
+            newSolution = getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations)
             checkedChromaticNumbers.add(currentColorsNumber)
             jumpValue = if (ceil(jumpValue / 2f).toInt() == 0) 1 else ceil(jumpValue / 2f).toInt()
 
@@ -32,13 +33,14 @@ object TabuSearch {
             }
         }
         println("Tabu Search optimum chromatic number is: $chromaticNumber")
-
     }
 
     fun getTabuSearchSolution(
         graph: UndirectedGraph, colorsNumber: Int, tabuSize: Int, reps: Int, maxIterations: Int
     ): UndirectedGraph? {
+        println("colorsNumber: $colorsNumber, tabuSize: $tabuSize, reps: $reps, maxIterations: $maxIterations")
         var minimumConflictCount = 10_000
+        var iterationInWhichMinWasAssigned = -1
         println()
         println("Checking coloring for $colorsNumber")
 //        tabu is Deque of pairs of nodes with new colors (both indexed starting from 1)
@@ -50,6 +52,7 @@ object TabuSearch {
         var conflictCount: Int? = null
         for (i in 0..maxIterations) {
             val moveCandidates = solution.wrongConnections.flatMap { it.toList() }.distinct()
+
             conflictCount = solution.wrongConnections.size
             if (conflictCount == 0) {
                 println(",$conflictCount")
@@ -62,7 +65,10 @@ object TabuSearch {
             for (r in 0 until reps) {
                 vertexToMove = moveCandidates.random()
 
-                val newColor = randomColor(colorsNumber)
+//                val newColor = randomColor(colorsNumber)
+                val newColor =
+                    solution.coloring.getNeighboursColors(solution.getNeighbours(vertexToMove))
+                        .firstAvailableColor(colorsNumber) ?: randomColor(colorsNumber)
 
                 newSolution = copy(solution)
                 newSolution.coloring.color(vertexToMove, newColor)
@@ -91,7 +97,14 @@ object TabuSearch {
 
             solution = newSolution!!
 
-            if (conflictCount < minimumConflictCount) minimumConflictCount = conflictCount
+            if (conflictCount < minimumConflictCount) {
+                minimumConflictCount = conflictCount
+                iterationInWhichMinWasAssigned = i
+            }
+            if (i - iterationInWhichMinWasAssigned > 100 && minimumConflictCount > 15) {
+                //workaround ot end long computations
+                break
+            }
             if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
             print(",$conflictCount")
         }

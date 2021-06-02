@@ -1,12 +1,22 @@
 package graph.coloring
 
-class NeighboursColors(private val neighboursColors: List<Int>){
+class NeighboursColors(private val neighboursColors: List<Int>) {
 
-    val firstAvailableColor: Int get() {
+    fun firstAvailableColor(colorsNumber: Int): Int? {
         var color = 1
-        while (neighboursColors.contains(color)){
+        while (neighboursColors.contains(color)) {
             color++
+            if (color > colorsNumber) return null
         }
         return color
     }
+
+    val firstAvailableColor: Int
+        get() {
+            var color = 1
+            while (neighboursColors.contains(color)) {
+                color++
+            }
+            return color
+        }
 }
