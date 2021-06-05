@@ -13,6 +13,11 @@ class ColorsManager(private val vertexNumber: Int) {
     val chromaticNumber: Int
         get() = currentSolution.maxOf { it }
 
+    val readableSolution: List<String>
+        get() = currentSolution.mapIndexed { index, color ->
+            "Vertex number ${index + 1} is colored by color ${color}"
+        }
+
     fun color(vertex: Int, color: Int) {
         throwIfIsZero(vertex, color)
         coloring[vertex - 1] = color
