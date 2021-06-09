@@ -86,7 +86,7 @@ object TabuSearch {
 
             if (checkStages) {
                 println()
-                if(stepsCount == 1){
+                if (stepsCount == 1) {
                     println("Faza $stepsCount ukazuje losowe kolorowanie grafu, w kolejnych fazach to rozwiązanie jest ulepszane")
                 }
                 println("---------- Faza ${stepsCount++} --------------------------------------------------------")
@@ -118,11 +118,6 @@ object TabuSearch {
                 newSolution = copy(solution)
                 newSolution.coloring.color(vertexToMove, newColor)
 
-//                if(checkStages){
-//                    println()
-//                    println("Kolorujemy vertex $vertexToMove na kolor $newColor")
-//                }
-
                 val newConflictsCount = newSolution.wrongConnections.size
                 if (newConflictsCount < conflictCount) {
                     if (newConflictsCount <= aspirationLevel.getOrDefault(conflictCount, conflictCount - 1)) {
@@ -146,15 +141,15 @@ object TabuSearch {
             }
 
             solution = newSolution!!
-            if(checkStages){
+            if (checkStages) {
                 println()
-                println("Kolorowanie vertex $vertexToMove na kolor $newColor")
+                println("Pokolorowałem vertex $vertexToMove na kolor $newColor")
             }
 
             if (conflictCount < minimumConflictCount) {
                 minimumConflictCount = conflictCount
             }
-            if(!checkStages){
+            if (!checkStages) {
                 if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
                 print(",$conflictCount")
             }
