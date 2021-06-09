@@ -8,8 +8,17 @@ import kotlin.random.Random
 object TabuSearch {
 
     fun optimizationProblem(
-        graph: UndirectedGraph, nTry: Int, startingColorsNumber: Int, tabuSize: Int, reps: Int, maxIterations: Int
-    ) {
+        graph: UndirectedGraph,
+        nTry: Int,
+        startingColorsNumber: Int,
+        tabuSize: Int,
+        reps: Int,
+        maxIterations: Int,
+        maxExecutionTimeMinutes: Int
+    ): Int {
+        val maxExecutionTimeMillis = maxExecutionTimeMinutes * 60 * 1000
+        val endTimeMillis = System.currentTimeMillis() + maxExecutionTimeMillis
+
         val checkedChromaticNumbers = mutableListOf<Int>()
         var currentColorsNumber = ceil(startingColorsNumber / 2f).toInt()
         var jumpValue = ceil(startingColorsNumber / 2f).toInt()
@@ -17,8 +26,10 @@ object TabuSearch {
 
         var newSolution: UndirectedGraph? = null
         for (i in 0 until nTry) {
+            if (System.currentTimeMillis() > endTimeMillis) break
+
             val newGraph = copy(graph)
-            newSolution = getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations)
+            newSolution = getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations, endTimeMillis)
             checkedChromaticNumbers.add(currentColorsNumber)
             jumpValue = if (ceil(jumpValue / 2f).toInt() == 0) 1 else ceil(jumpValue / 2f).toInt()
 
@@ -33,11 +44,18 @@ object TabuSearch {
             }
         }
         println("Tabu Search optimum chromatic number is: $chromaticNumber")
+        return chromaticNumber
     }
 
     fun getTabuSearchSolution(
-        graph: UndirectedGraph, colorsNumber: Int, tabuSize: Int, reps: Int, maxIterations: Int
+        graph: UndirectedGraph,
+        colorsNumber: Int,
+        tabuSize: Int,
+        reps: Int,
+        maxIterations: Int,
+        endTimeMillis: Long? = null
     ): UndirectedGraph? {
+
         println("colorsNumber: $colorsNumber, tabuSize: $tabuSize, reps: $reps, maxIterations: $maxIterations")
         var minimumConflictCount = 10_000
         var iterationInWhichMinWasAssigned = -1
@@ -51,12 +69,16 @@ object TabuSearch {
 
         var conflictCount: Int? = null
         for (i in 0..maxIterations) {
-            val moveCandidates = solution.wrongConnections.flatMap { it.toList() }.distinct()
+            if (endTimeMillis != null && System.currentTimeMillis() > endTimeMillis) {
+                println()
+                println("End of time")
+                break
+            }
 
+            val moveCandidates = solution.wrongConnections.flatMap { it.toList() }.distinct()
             conflictCount = solution.wrongConnections.size
             if (conflictCount == 0) {
-                println(",$conflictCount")
-                println("ConflictCount is 0")
+                println("ConflictCount is $conflictCount")
                 break
             }
 
@@ -101,10 +123,10 @@ object TabuSearch {
                 minimumConflictCount = conflictCount
                 iterationInWhichMinWasAssigned = i
             }
-            if (i - iterationInWhichMinWasAssigned > 100 && minimumConflictCount > 15) {
-                //workaround ot end long computations
-                break
-            }
+//            if (i - iterationInWhichMinWasAssigned > 100 && minimumConflictCount > 15) {
+//                //workaround ot end long computations
+//                break
+//            }
             if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
             print(",$conflictCount")
         }

@@ -2,6 +2,7 @@ import algorithms.GreedyAlgorithm.colorWithGreedyAlgorithm
 import algorithms.TabuSearch
 import graph.UndirectedGraph
 import utils.Files
+import utils.UndirectedGraphGenerator
 import utils.Util.graphFromResource
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
@@ -12,6 +13,26 @@ fun main() {
 //    third()
 //    fourth()
 //    fifth()
+tabuSearchStages()
+
+}
+
+fun tabuSearchStages(){
+    val graph = UndirectedGraphGenerator.generateCoherentGraph(12, 0.7f)
+    graph.colorWithGreedyAlgorithm()
+    println("Greedy chromatic number: ${graph.coloring.chromaticNumber}")
+    graph.coloring.clear()
+    val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
+    TabuSearch.getTabuSearchSolution(graph,7, 7,reps, 1000)
+
+}
+
+fun solutionCheckTest(){
+    val graph = graphFromResource(Files.TXT_RES_LOCALIZATION, "queen6")
+    graph.colorWithGreedyAlgorithm()
+    graph.coloring.readableSolution.forEach {
+        println(it)
+    }
 }
 
 fun first(){
@@ -23,7 +44,7 @@ fun first(){
 fun second(){
     val graph = graphFromResource(Files.COL_RES_LOCALIZATION, "le450_5a")
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
-    advancedTabuSearchTest(graph, 7, reps, 7000, 5)
+    advancedTabuSearchTest(graph, 7, reps, 7000, 5, 1)
 }
 
 fun third(){
@@ -80,14 +101,14 @@ fun testingFunction() {
     advancedTabuSearchTest(graphToTest, 7, 100, 5000, 5)
 }
 
-fun advancedTabuSearchTest(graph: UndirectedGraph, tabuSize: Int, reps: Int, maxIterations: Int, nTry: Int) {
+fun advancedTabuSearchTest(graph: UndirectedGraph, tabuSize: Int, reps: Int, maxIterations: Int, nTry: Int, maxExecutionTimeMinutes: Int = 1) {
     println("Tabu Search optimization test for ${graph.name}")
     val greedyChromaticNumber = graph.colorWithGreedyAlgorithm().coloring.chromaticNumber
     println("Greedy coloring chromatic number: $greedyChromaticNumber")
     graph.coloring.clear()
 
     val computationsDurationMillis = measureTimeMillis {
-        TabuSearch.optimizationProblem(graph, nTry, greedyChromaticNumber, tabuSize, reps, maxIterations)
+        TabuSearch.optimizationProblem(graph, nTry, greedyChromaticNumber, tabuSize, reps, maxIterations,maxExecutionTimeMinutes)
     }
     val seconds = TimeUnit.MILLISECONDS.toSeconds(computationsDurationMillis)
     println("Execution duration seconds: $seconds")
