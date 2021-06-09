@@ -29,7 +29,8 @@ object TabuSearch {
             if (System.currentTimeMillis() > endTimeMillis) break
 
             val newGraph = copy(graph)
-            newSolution = getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations, endTimeMillis)
+            newSolution =
+                getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations, endTimeMillis)
             checkedChromaticNumbers.add(currentColorsNumber)
             jumpValue = if (ceil(jumpValue / 2f).toInt() == 0) 1 else ceil(jumpValue / 2f).toInt()
 
@@ -55,6 +56,8 @@ object TabuSearch {
         maxIterations: Int,
         endTimeMillis: Long? = null
     ): UndirectedGraph? {
+        val checkStages = true
+        var stepsCount = 1
 
         println("colorsNumber: $colorsNumber, tabuSize: $tabuSize, reps: $reps, maxIterations: $maxIterations")
         var minimumConflictCount = 10_000
@@ -68,7 +71,10 @@ object TabuSearch {
         var solution = graph.colorRandomly(colorsNumber)
 
         var conflictCount: Int? = null
+
         for (i in 0..maxIterations) {
+
+
             if (endTimeMillis != null && System.currentTimeMillis() > endTimeMillis) {
                 println()
                 println("End of time")
@@ -77,6 +83,21 @@ object TabuSearch {
 
             val moveCandidates = solution.wrongConnections.flatMap { it.toList() }.distinct()
             conflictCount = solution.wrongConnections.size
+
+            if (checkStages) {
+                println()
+                if(stepsCount == 1){
+                    println("Faza $stepsCount ukazuje losowe kolorowanie grafu, w kolejnych fazach to rozwiązanie jest ulepszane")
+                }
+                println("---------- Faza ${stepsCount++} --------------------------------------------------------")
+                println("Liczba konfliktów: $conflictCount")
+                println("Tabu:")
+                tabu.forEachIndexed { index, pair -> println("$index: vertex: ${pair.first}, color: ${pair.second}") }
+                println("Coloring:")
+                solution.coloring.readableSolution.forEach { println(it) }
+                println()
+            }
+
             if (conflictCount == 0) {
                 println("ConflictCount is $conflictCount")
                 break
@@ -84,6 +105,7 @@ object TabuSearch {
 
             var newSolution: UndirectedGraph? = null
             var vertexToMove: Int? = null
+
             for (r in 0 until reps) {
                 vertexToMove = moveCandidates.random()
 
@@ -94,6 +116,15 @@ object TabuSearch {
 
                 newSolution = copy(solution)
                 newSolution.coloring.color(vertexToMove, newColor)
+                if(checkStages){
+                    println()
+                    println("W następnej fazie kolorujemy vertex $vertexToMove na kolor $newColor")
+                }
+
+//                if(checkStages){
+//                    println()
+//                    println("Kolorujemy vertex $vertexToMove na kolor $newColor")
+//                }
 
                 val newConflictsCount = newSolution.wrongConnections.size
                 if (newConflictsCount < conflictCount) {
@@ -121,14 +152,11 @@ object TabuSearch {
 
             if (conflictCount < minimumConflictCount) {
                 minimumConflictCount = conflictCount
-                iterationInWhichMinWasAssigned = i
             }
-//            if (i - iterationInWhichMinWasAssigned > 100 && minimumConflictCount > 15) {
-//                //workaround ot end long computations
-//                break
-//            }
-            if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
-            print(",$conflictCount")
+            if(!checkStages){
+                if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
+                print(",$conflictCount")
+            }
         }
 
         return if (conflictCount!! == 0) {

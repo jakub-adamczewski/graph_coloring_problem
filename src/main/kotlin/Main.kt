@@ -13,21 +13,26 @@ fun main() {
 //    third()
 //    fourth()
 //    fifth()
-tabuSearchStages()
-
+    tabuSearchStages(12, 0.7f)
 }
 
-fun tabuSearchStages(){
-    val graph = UndirectedGraphGenerator.generateCoherentGraph(12, 0.7f)
+fun tabuSearchStages(size: Int, density: Float) {
+    val graph = UndirectedGraphGenerator.generateCoherentGraph(size, density)
+    println("Połączenia:")
+    graph.allConnections.forEach {
+        println("Vertex ${it.first} is connected with vertex ${it.second}")
+    }
     graph.colorWithGreedyAlgorithm()
-    println("Greedy chromatic number: ${graph.coloring.chromaticNumber}")
+    val greedyChromaticNumber = graph.coloring.chromaticNumber
+    println()
+    println("Greedy chromatic number: $greedyChromaticNumber")
     graph.coloring.clear()
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
-    TabuSearch.getTabuSearchSolution(graph,7, 7,reps, 1000)
+    TabuSearch.getTabuSearchSolution(graph, greedyChromaticNumber, 7, reps, 1000)
 
 }
 
-fun solutionCheckTest(){
+fun solutionCheckTest() {
     val graph = graphFromResource(Files.TXT_RES_LOCALIZATION, "queen6")
     graph.colorWithGreedyAlgorithm()
     graph.coloring.readableSolution.forEach {
@@ -35,31 +40,31 @@ fun solutionCheckTest(){
     }
 }
 
-fun first(){
+fun first() {
     val graph = graphFromResource(Files.TXT_RES_LOCALIZATION, "queen6")
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
     advancedTabuSearchTest(graph, 7, reps, 10000, 5)
 }
 
-fun second(){
+fun second() {
     val graph = graphFromResource(Files.COL_RES_LOCALIZATION, "le450_5a")
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
     advancedTabuSearchTest(graph, 7, reps, 7000, 5, 1)
 }
 
-fun third(){
+fun third() {
     val graph = graphFromResource(Files.COL_RES_LOCALIZATION, "anna")
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
     advancedTabuSearchTest(graph, 7, reps, 500, 5)
 }
 
-fun fourth(){
+fun fourth() {
     val graph = graphFromResource(Files.COL_RES_LOCALIZATION, "miles500")
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
     advancedTabuSearchTest(graph, 7, reps, 2000, 5)
 }
 
-fun fifth(){
+fun fifth() {
     val graph = graphFromResource(Files.COL_RES_LOCALIZATION, "miles1500")
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
     advancedTabuSearchTest(graph, 7, reps, 1000, 5)
@@ -72,64 +77,30 @@ fun testWithComputedValues(graph: UndirectedGraph, nTry: Int) {
     advancedTabuSearchTest(graph, tabuSize, reps, maxIterations, nTry)
 }
 
-fun testingFunction() {
-//    Czytanie grafu z pliku
-    val graphToTest = graphFromResource(Files.TXT_RES_LOCALIZATION, "queen6")
-//    Generowanie grafu poprzez generator
-//    val graphToTest = UndirectedGraphGenerator.generateCoherentGraph(30, 0.7f)
-
-//    Drukowanie poćzątkowych danych o grafie
-    println("Początkowe dane o grafie: ")
-    println("Rozmiar: ${graphToTest.vertexNumber}")
-    println("Połączenia: ")
-    graphToTest.allConnections.forEach {
-        println("${it.first} z ${it.second}")
-    }
-
-//    Bazowy test, z wypisaniem kolorowania grafu
-//    val coloredGraph = basicTabuSearchTest(graphToTest, 7, 7, 100, 10000)
-//    if (coloredGraph != null){
-//        println("Graf jest pokolorowany na ${coloredGraph.coloring.chromaticNumber} kolorów.")
-//        coloredGraph.coloring.currentSolution.forEachIndexed { index, i ->
-//            println("Vertex ${index + 1} jest pokolorowany kolorem $i")
-//        }
-//    }else {
-//        println("Nie ma kolorowania dla tej ilosci kolorów.")
-//    }
-
-//    Zaawansowany test
-    advancedTabuSearchTest(graphToTest, 7, 100, 5000, 5)
-}
-
-fun advancedTabuSearchTest(graph: UndirectedGraph, tabuSize: Int, reps: Int, maxIterations: Int, nTry: Int, maxExecutionTimeMinutes: Int = 1) {
+fun advancedTabuSearchTest(
+    graph: UndirectedGraph,
+    tabuSize: Int,
+    reps: Int,
+    maxIterations: Int,
+    nTry: Int,
+    maxExecutionTimeMinutes: Int = 1
+) {
     println("Tabu Search optimization test for ${graph.name}")
     val greedyChromaticNumber = graph.colorWithGreedyAlgorithm().coloring.chromaticNumber
     println("Greedy coloring chromatic number: $greedyChromaticNumber")
     graph.coloring.clear()
 
     val computationsDurationMillis = measureTimeMillis {
-        TabuSearch.optimizationProblem(graph, nTry, greedyChromaticNumber, tabuSize, reps, maxIterations,maxExecutionTimeMinutes)
+        TabuSearch.optimizationProblem(
+            graph,
+            nTry,
+            greedyChromaticNumber,
+            tabuSize,
+            reps,
+            maxIterations,
+            maxExecutionTimeMinutes
+        )
     }
     val seconds = TimeUnit.MILLISECONDS.toSeconds(computationsDurationMillis)
     println("Execution duration seconds: $seconds")
-}
-
-fun basicTabuSearchTest(
-    graph: UndirectedGraph,
-    colorsNumberToTest: Int,
-    tabuSize: Int,
-    reps: Int,
-    maxIterations: Int
-): UndirectedGraph? {
-    println("Tabu Search test for ${graph.name}")
-    val greedyChromaticNumber = graph.colorWithGreedyAlgorithm().coloring.chromaticNumber
-    println("Greedy coloring chromatic number: $greedyChromaticNumber")
-    graph.coloring.clear()
-
-    var coloredGraph: UndirectedGraph?
-    val computationsDurationMillis = measureTimeMillis {
-        coloredGraph = TabuSearch.getTabuSearchSolution(graph, colorsNumberToTest, tabuSize, reps, maxIterations)
-    }
-    println("Time: $computationsDurationMillis")
-    return coloredGraph
 }
