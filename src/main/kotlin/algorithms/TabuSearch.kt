@@ -105,21 +105,18 @@ object TabuSearch {
 
             var newSolution: UndirectedGraph? = null
             var vertexToMove: Int? = null
+            var newColor: Int? = null
 
             for (r in 0 until reps) {
                 vertexToMove = moveCandidates.random()
 
 //                val newColor = randomColor(colorsNumber)
-                val newColor =
+                newColor =
                     solution.coloring.getNeighboursColors(solution.getNeighbours(vertexToMove))
                         .firstAvailableColor(colorsNumber) ?: randomColor(colorsNumber)
 
                 newSolution = copy(solution)
                 newSolution.coloring.color(vertexToMove, newColor)
-                if(checkStages){
-                    println()
-                    println("W następnej fazie kolorujemy vertex $vertexToMove na kolor $newColor")
-                }
 
 //                if(checkStages){
 //                    println()
@@ -149,6 +146,10 @@ object TabuSearch {
             }
 
             solution = newSolution!!
+            if(checkStages){
+                println()
+                println("Kolorowanie vertex $vertexToMove na kolor $newColor")
+            }
 
             if (conflictCount < minimumConflictCount) {
                 minimumConflictCount = conflictCount
