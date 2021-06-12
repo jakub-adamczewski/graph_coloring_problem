@@ -4,10 +4,51 @@ import graph.UndirectedGraph
 import java.util.*
 import kotlin.math.ceil
 import kotlin.random.Random
+import kotlin.system.measureTimeMillis
 
 object TabuSearch {
 
-    fun optimizationProblem(
+    fun linearOptimizationProblem(
+        graph: UndirectedGraph,
+        nTry: Int,
+        startingColorsNumber: Int,
+        tabuSize: Int,
+        reps: Int,
+        maxIterations: Int,
+        maxExecutionTimeMinutes: Int,
+        jumpValue: Int
+    ): Int {
+        val maxExecutionTimeMillis = maxExecutionTimeMinutes * 60 * 1000
+        val endTimeMillis = System.currentTimeMillis() + maxExecutionTimeMillis
+
+        var chromaticNumber = startingColorsNumber
+
+        var newSolution: UndirectedGraph? = null
+        for (i in 0 until nTry) {
+            if (System.currentTimeMillis() > endTimeMillis) break
+
+            val newGraph = copy(graph)
+            newSolution =
+                getTabuSearchSolution(
+                    newGraph,
+                    chromaticNumber - jumpValue,
+                    tabuSize,
+                    reps,
+                    maxIterations,
+                    endTimeMillis
+                )
+
+            if (newSolution != null) {
+                chromaticNumber -= jumpValue
+            } else {
+                break
+            }
+        }
+        println("Tabu Search optimum chromatic number is: $chromaticNumber")
+        return chromaticNumber
+    }
+
+    fun quickSearchOptimizationProblem(
         graph: UndirectedGraph,
         nTry: Int,
         startingColorsNumber: Int,
@@ -20,8 +61,8 @@ object TabuSearch {
         val endTimeMillis = System.currentTimeMillis() + maxExecutionTimeMillis
 
         val checkedChromaticNumbers = mutableListOf<Int>()
-        var currentColorsNumber = ceil(startingColorsNumber / 2f).toInt()
-        var jumpValue = ceil(startingColorsNumber / 2f).toInt()
+        var currentColorsNumber = ceil(startingColorsNumber * (3 / 4f)).toInt()
+        var jumpValue = ceil((startingColorsNumber - currentColorsNumber) * (3 / 4f)).toInt()
         var chromaticNumber = startingColorsNumber
 
         var newSolution: UndirectedGraph? = null
@@ -29,8 +70,8 @@ object TabuSearch {
             if (System.currentTimeMillis() > endTimeMillis) break
 
             val newGraph = copy(graph)
-            newSolution =
-                getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations, endTimeMillis)
+                newSolution =
+                    getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations, endTimeMillis)
             checkedChromaticNumbers.add(currentColorsNumber)
             jumpValue = if (ceil(jumpValue / 2f).toInt() == 0) 1 else ceil(jumpValue / 2f).toInt()
 
@@ -56,12 +97,24 @@ object TabuSearch {
         maxIterations: Int,
         endTimeMillis: Long? = null
     ): UndirectedGraph? {
-        val checkStages = true
+        val checkStages = false
+        val conflictsToIterationsGraph = false
+        val booleanNotPrintValues = booleanArrayOf(checkStages, conflictsToIterationsGraph)
+
+        if (conflictsToIterationsGraph) {
+            println("Liczba konfliktów, iteracja")
+        }
+        if (checkStages) {
+            println("Połączenia:")
+            graph.allConnections.forEach {
+                println("Vertex ${it.first} is connected with vertex ${it.second}")
+            }
+        }
+
         var stepsCount = 1
 
         println("colorsNumber: $colorsNumber, tabuSize: $tabuSize, reps: $reps, maxIterations: $maxIterations")
         var minimumConflictCount = 10_000
-        var iterationInWhichMinWasAssigned = -1
         println()
         println("Checking coloring for $colorsNumber")
 //        tabu is Deque of pairs of nodes with new colors (both indexed starting from 1)
@@ -110,7 +163,6 @@ object TabuSearch {
             for (r in 0 until reps) {
                 vertexToMove = moveCandidates.random()
 
-//                val newColor = randomColor(colorsNumber)
                 newColor =
                     solution.coloring.getNeighboursColors(solution.getNeighbours(vertexToMove))
                         .firstAvailableColor(colorsNumber) ?: randomColor(colorsNumber)
@@ -125,6 +177,7 @@ object TabuSearch {
 
                         if (tabu.contains(vertexToMove to newColor)) {
                             tabu.remove(vertexToMove to newColor)
+                            break
                         }
                     } else {
                         if (tabu.contains(vertexToMove to newColor)) {
@@ -141,6 +194,9 @@ object TabuSearch {
             }
 
             solution = newSolution!!
+            if (conflictsToIterationsGraph && i % 10 == 0) {
+                println("${minimumConflictCount}, $i")
+            }
             if (checkStages) {
                 println()
                 println("Pokolorowałem vertex $vertexToMove na kolor $newColor")
@@ -149,7 +205,7 @@ object TabuSearch {
             if (conflictCount < minimumConflictCount) {
                 minimumConflictCount = conflictCount
             }
-            if (!checkStages) {
+            if (booleanNotPrintValues.none { it }) {
                 if (i > 0 && i % 10 == 0) println(" - iteration: $i, minimumConflictCount: $minimumConflictCount")
                 print(",$conflictCount")
             }
