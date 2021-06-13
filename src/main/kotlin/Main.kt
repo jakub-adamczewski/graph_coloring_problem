@@ -8,18 +8,12 @@ import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 fun main() {
-
-//    val graph = UndirectedGraphGenerator.generateCoherentGraph(200, 0.90f, false)
+//    gc500Adv()
+//    val graph = graphFromResource(Files.TXT_RES_LOCALIZATION, "gc500")
 //    val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
-//    advancedQuickSearch(graph, 7, reps, 2000, 10, 5)
-
-    val graph = graphFromResource(Files.TXT_RES_LOCALIZATION, "gc1000_300013")
-    val reps = (graph.density * (graph.vertexNumber - 1) / 2).toInt()
-//    advancedQuickSearch(graph, 7, reps, 3000, 10, 5)
-//    advancedLinearTabuSearchTest(graph, 7, reps, 2000, 10, 10, 3)
-    TabuSearch.getTabuSearchSolution(graph, 155, 7, reps, 5000)
+//    TabuSearch.getTabuSearchSolution(graph, 80, 7, reps, 5000)
+    le450_5aAdv()
 }
-
 
 //7
 fun queen6Adv() {
@@ -35,11 +29,17 @@ fun miles250Adv() {
     advancedQuickSearch(graph, 7, reps, 5_000, 10, 5)
 }
 
-//7
+//9
 fun le450_5aAdv() {
     val graph = graphFromResource(Files.COL_RES_LOCALIZATION, "le450_5a")
     val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
-    advancedQuickSearch(graph, 7, reps, 5_000, 10, 5)
+    advancedQuickSearch(graph, 7, reps, 2500, 10, 5)
+}
+
+fun gc500Adv() {
+    val graph = graphFromResource(Files.TXT_RES_LOCALIZATION, "gc500")
+    val reps = (graph.density * (graph.vertexNumber - 1)).toInt()
+    advancedQuickSearch(graph, 7, reps, 500, 10, 5)
 }
 
 fun miles500Adv() {

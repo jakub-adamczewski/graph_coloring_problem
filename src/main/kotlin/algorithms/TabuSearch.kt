@@ -4,7 +4,6 @@ import graph.UndirectedGraph
 import java.util.*
 import kotlin.math.ceil
 import kotlin.random.Random
-import kotlin.system.measureTimeMillis
 
 object TabuSearch {
 
@@ -70,8 +69,8 @@ object TabuSearch {
             if (System.currentTimeMillis() > endTimeMillis) break
 
             val newGraph = copy(graph)
-                newSolution =
-                    getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations, endTimeMillis)
+            newSolution =
+                getTabuSearchSolution(newGraph, currentColorsNumber, tabuSize, reps, maxIterations, endTimeMillis)
             checkedChromaticNumbers.add(currentColorsNumber)
             jumpValue = if (ceil(jumpValue / 2f).toInt() == 0) 1 else ceil(jumpValue / 2f).toInt()
 
